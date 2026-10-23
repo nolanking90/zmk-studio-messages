@@ -16,6 +16,7 @@ message Request {
         RemoveLayerRequest remove_layer = 10;
         RestoreLayerRequest restore_layer = 11;
         SetLayerPropsRequest set_layer_props = 12;
+        SetLayerSensorBindingRequest set_layer_sensor_binding = 13;
     }
 }
 
@@ -33,6 +34,7 @@ message Response {
         RemoveLayerResponse remove_layer = 10;
         RestoreLayerResponse restore_layer = 11;
         SetLayerPropsResponse set_layer_props = 12;
+        SetLayerBindingResponse set_layer_sensor_binding = 13;
     }
 }
 
@@ -151,6 +153,17 @@ message SetLayerBindingRequest {
     BehaviorBinding binding = 3;
 }
 
+// Sets the binding for one sensor (e.g. rotary encoder) on a layer. The behavior must be a
+// sensor rotation behavior such as &inc_dec_kp. A behavior_id of 65535 (UINT16_MAX) clears the
+// binding, so the sensor falls through to the next active layer; get_keymap reports a cleared
+// or unset sensor binding the same way. Responds with SetLayerBindingResponse.
+message SetLayerSensorBindingRequest {
+    uint32 layer_id = 1;
+    uint32 sensor_index = 2;
+
+    BehaviorBinding binding = 3;
+}
+
 message MoveLayerRequest {
     uint32 start_index = 1;
     uint32 dest_index = 2;
@@ -183,6 +196,9 @@ message Layer {
     uint32 id = 1;
     string name = 2;
     repeated BehaviorBinding bindings = 3;
+    // One entry per sensor (e.g. rotary encoder), in sensor index order. Empty when the
+    // keyboard has no sensors. A behavior_id of 65535 means no binding (falls through).
+    repeated BehaviorBinding sensor_bindings = 4;
 }
 
 message BehaviorBinding {
